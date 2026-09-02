@@ -1,0 +1,54 @@
+{
+  "name": "dino-desktop-pet",
+  "version": "1.0.0",
+  "description": "一个透明置顶的 Windows 桌面宠物",
+  "author": "JUJU",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "dist": "electron-builder --win"
+  },
+  "devDependencies": {
+    "electron": "^43.0.0",
+    "electron-builder": "^26.15.3"
+  },
+  "build": {
+    "appId": "com.juju.desktop-pet",
+    "productName": "桌宠",
+    "directories": {
+      "output": "release"
+    },
+    "files": [
+      "main.js",
+      "preload.js",
+      "index.html",
+      "chat.html",
+      "chat-preload.js",
+      "settings.html",
+      "settings-preload.js",
+      "assets/**/*",
+      "!node_modules/**/*",
+      "package.json"
+    ],
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "icon": "build/icon.ico"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "桌宠",
+      "artifactName": "桌宠-Setup-${version}.${ext}"
+    }
+  }
+}
+

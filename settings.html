@@ -1,0 +1,361 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>设置</title>
+    <style>
+      :root {
+        --bg: #f2f2f7;
+        --panel: #ffffff;
+        --text: #111111;
+        --secondary: #8e8e93;
+        --accent: #34b7f1;
+        --border: #e3e3e8;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+        background: var(--bg);
+        color: var(--text);
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Microsoft YaHei", sans-serif;
+      }
+
+      .settings-page {
+        display: flex;
+        flex-direction: column;
+        width: 100%;
+        height: 100%;
+      }
+
+      .settings-header {
+        flex: 0 0 62px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 0 16px;
+        background: rgba(255, 255, 255, 0.94);
+        border-bottom: 1px solid var(--border);
+        backdrop-filter: blur(12px);
+      }
+
+      .avatar {
+        width: 38px;
+        height: 38px;
+        border-radius: 50%;
+        overflow: hidden;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #e7e7ee;
+        flex: 0 0 38px;
+      }
+
+      .avatar img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        object-position: top center;
+      }
+
+      .settings-title {
+        font-size: 16px;
+        font-weight: 650;
+      }
+
+      .settings-subtitle {
+        margin-top: 2px;
+        color: var(--secondary);
+        font-size: 12px;
+      }
+
+      .settings-body {
+        flex: 1;
+        min-height: 0;
+        overflow-y: auto;
+        padding: 18px;
+      }
+
+      .settings-card {
+        padding: 20px;
+        border-radius: 18px;
+        background: var(--panel);
+        box-shadow: 0 6px 22px rgba(0, 0, 0, 0.07);
+      }
+
+      .field-label {
+        display: block;
+        margin: 14px 0 7px;
+        color: #555555;
+        font-size: 13px;
+      }
+
+      .field-label:first-child {
+        margin-top: 0;
+      }
+
+      .input-wrap {
+        position: relative;
+      }
+
+      .input-wrap input,
+      .settings-card select,
+      .settings-card input {
+        width: 100%;
+        height: 42px;
+        padding: 0 13px;
+        border: 1px solid #d9d9de;
+        border-radius: 11px;
+        background: #fafafa;
+        color: var(--text);
+        font: inherit;
+        font-size: 14px;
+        outline: none;
+      }
+
+      .input-wrap input {
+        padding-right: 46px;
+      }
+
+      .settings-card input:focus,
+      .settings-card select:focus {
+        border-color: rgba(52, 183, 241, 0.65);
+        background: #ffffff;
+      }
+
+      .eye-button {
+        position: absolute;
+        top: 50%;
+        right: 9px;
+        transform: translateY(-50%);
+        width: 32px;
+        height: 32px;
+        border: none;
+        border-radius: 50%;
+        background: transparent;
+        color: #666666;
+        font-size: 17px;
+        cursor: pointer;
+      }
+
+      .eye-button:hover {
+        background: rgba(0, 0, 0, 0.06);
+      }
+
+      .field-hint {
+        margin-top: 7px;
+        color: #999999;
+        font-size: 12px;
+        line-height: 1.4;
+      }
+
+      .settings-actions {
+        display: flex;
+        gap: 10px;
+        margin-top: 22px;
+      }
+
+      .settings-actions button {
+        flex: 1;
+        height: 42px;
+        border: none;
+        border-radius: 21px;
+        font: inherit;
+        font-size: 14px;
+        font-weight: 650;
+        cursor: pointer;
+        transition: opacity 0.15s ease;
+      }
+
+      .test-button {
+        background: #eef5ff;
+        color: #2679c8;
+      }
+
+      .save-button {
+        background: var(--accent);
+        color: #ffffff;
+      }
+
+      .settings-actions button:disabled {
+        opacity: 0.55;
+        cursor: default;
+      }
+
+      .status {
+        min-height: 20px;
+        margin-top: 14px;
+        font-size: 13px;
+        line-height: 1.4;
+      }
+
+      .status.success {
+        color: #21a35a;
+      }
+
+      .status.error {
+        color: #d9534f;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="settings-page">
+      <header class="settings-header">
+        <div class="avatar">
+          <img src="./assets/scratch_01.png" alt="小恐龙" />
+        </div>
+        <div>
+          <div class="settings-title">设置</div>
+          <div class="settings-subtitle">DeepSeek 连接配置</div>
+        </div>
+      </header>
+
+      <main class="settings-body">
+        <div class="settings-card">
+          <label class="field-label" for="apiKeyInput">API Key</label>
+          <div class="input-wrap">
+            <input id="apiKeyInput" type="password" autocomplete="off" placeholder="sk-..." />
+            <button class="eye-button" id="toggleApiKey" type="button" title="显示 API Key">👁</button>
+          </div>
+          <div class="field-hint">API Key 只保存在本机，不会提交到 Git。</div>
+
+          <label class="field-label" for="modelSelect">模型</label>
+          <select id="modelSelect">
+            <option value="deepseek-v4-flash">DeepSeek V4 Flash（快速，推荐）</option>
+            <option value="deepseek-v4-pro">DeepSeek V4 Pro（更强）</option>
+          </select>
+
+          <label class="field-label" for="baseUrlInput">API 接口地址</label>
+          <input id="baseUrlInput" type="text" placeholder="https://api.deepseek.com" />
+
+          <div class="settings-actions">
+            <button class="test-button" id="testButton" type="button">测试连接</button>
+            <button class="save-button" id="saveButton" type="button">保存</button>
+          </div>
+
+          <div class="status" id="status"></div>
+        </div>
+      </main>
+    </div>
+
+    <script>
+      const apiKeyInput = document.getElementById('apiKeyInput');
+      const toggleApiKey = document.getElementById('toggleApiKey');
+      const modelSelect = document.getElementById('modelSelect');
+      const baseUrlInput = document.getElementById('baseUrlInput');
+      const testButton = document.getElementById('testButton');
+      const saveButton = document.getElementById('saveButton');
+      const status = document.getElementById('status');
+
+      function setStatus(message, type) {
+        status.textContent = message;
+        status.className = `status ${type || ''}`;
+      }
+
+      function setModelValue(value) {
+        const selected = value || 'deepseek-v4-flash';
+        const hasOption = Array.from(modelSelect.options).some(
+          (option) => option.value === selected
+        );
+
+        if (!hasOption) {
+          const option = document.createElement('option');
+          option.value = selected;
+          option.textContent = selected;
+          modelSelect.appendChild(option);
+        }
+
+        modelSelect.value = selected;
+      }
+
+      async function loadConfig() {
+        try {
+          const config = await window.settingsAPI.getConfig();
+          apiKeyInput.value = config.apiKey || '';
+          setModelValue(config.model);
+          baseUrlInput.value = config.baseUrl || 'https://api.deepseek.com';
+        } catch (error) {
+          setStatus('无法读取本地配置', 'error');
+        }
+      }
+
+      async function testConnection() {
+        const apiKey = apiKeyInput.value.trim();
+
+        if (!apiKey) {
+          setStatus('请先填写 API Key', 'error');
+          apiKeyInput.focus();
+          return;
+        }
+
+        testButton.disabled = true;
+        testButton.textContent = '测试中...';
+        setStatus('');
+
+        try {
+          const result = await window.settingsAPI.testConnection({
+            apiKey,
+            model: modelSelect.value,
+            baseUrl: baseUrlInput.value.trim()
+          });
+
+          setStatus(result.ok ? '连接成功' : result.message, result.ok ? 'success' : 'error');
+        } catch (error) {
+          setStatus('测试失败，请检查网络', 'error');
+        } finally {
+          testButton.disabled = false;
+          testButton.textContent = '测试连接';
+        }
+      }
+
+      async function saveSettings() {
+        const apiKey = apiKeyInput.value.trim();
+
+        if (!apiKey) {
+          setStatus('请先填写 API Key', 'error');
+          apiKeyInput.focus();
+          return;
+        }
+
+        saveButton.disabled = true;
+        saveButton.textContent = '保存中...';
+        setStatus('');
+
+        try {
+          const result = await window.settingsAPI.saveConfig({
+            apiKey,
+            model: modelSelect.value,
+            baseUrl: baseUrlInput.value.trim()
+          });
+
+          setStatus(result.ok ? '已保存到本机配置' : result.message, result.ok ? 'success' : 'error');
+        } catch (error) {
+          setStatus('保存失败，请重试', 'error');
+        } finally {
+          saveButton.disabled = false;
+          saveButton.textContent = '保存';
+        }
+      }
+
+      toggleApiKey.addEventListener('click', () => {
+        const isVisible = apiKeyInput.type === 'text';
+        apiKeyInput.type = isVisible ? 'password' : 'text';
+        toggleApiKey.textContent = isVisible ? '👁' : '🙈';
+        toggleApiKey.title = isVisible ? '显示 API Key' : '隐藏 API Key';
+      });
+
+      testButton.addEventListener('click', testConnection);
+      saveButton.addEventListener('click', saveSettings);
+
+      loadConfig();
+    </script>
+  </body>
+</html>
