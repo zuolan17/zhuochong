@@ -2,290 +2,42 @@
 <html lang="zh-CN">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>桌面宠物</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>JUJU 桌宠演示</title>
     <style>
-      html,
+      * { box-sizing: border-box; }
       body {
         margin: 0;
+        min-height: 100vh;
+        display: grid;
+        place-items: center;
+        padding: 24px;
+        color: #fff;
+        font-family: system-ui, sans-serif;
+        background: #10131a;
+      }
+      main { width: min(100%, 1000px); text-align: center; }
+      h1 { margin: 0 0 18px; font-size: clamp(24px, 5vw, 40px); }
+      video {
+        display: block;
         width: 100%;
-        height: 100%;
-        background: transparent;
-        overflow: hidden;
-        user-select: none;
+        max-height: 75vh;
+        border-radius: 14px;
+        background: #000;
+        box-shadow: 0 16px 50px #0008;
       }
-
-      #stage {
-        position: relative;
-        width: 200px;
-        height: 200px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-      }
-
-      #pet {
-        max-width: 100%;
-        max-height: 100%;
-        object-fit: contain;
-        image-rendering: pixelated;
-        image-rendering: crisp-edges;
-        -webkit-image-rendering: pixelated;
-        -webkit-user-drag: none;
-        transition: transform 0.08s linear;
-      }
-
-      #pet.face-left {
-        transform: scaleX(-1);
-      }
-
-      #bubble {
-        position: absolute;
-        top: 10px;
-        right: 4px;
-        display: none;
-        background: #ffffff;
-        color: #333333;
-        border: 1px solid #cccccc;
-        border-radius: 10px;
-        padding: 5px 9px;
-        font-size: 13px;
-        line-height: 1.2;
-        white-space: nowrap;
-        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.18);
-        pointer-events: none;
-        z-index: 10;
-      }
-
-      body.web-mode {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        background: linear-gradient(160deg, #fff7ed, #e0f2fe);
-      }
+      p { color: #cbd5e1; }
+      a { color: #7dd3fc; }
     </style>
   </head>
   <body>
-    <div id="stage">
-      <img id="pet" src="./assets/scratch_01.png" alt="桌面宠物" draggable="false" />
-      <div id="bubble">你好呀</div>
-    </div>
-    <script>
-      const frames = {
-        idle: [
-          './assets/scratch_01.png',
-          './assets/scratch_02.png',
-          './assets/scratch_03.png',
-          './assets/scratch_04.png'
-        ],
-        walk: [
-          './assets/walk_01.png',
-          './assets/walk_02.png',
-          './assets/walk_03.png',
-          './assets/walk_04.png'
-        ]
-      };
-
-      const pet = document.getElementById('pet');
-      const bubble = document.getElementById('bubble');
-      const isWebPreview = !window.petAPI;
-      if (isWebPreview) document.body.classList.add('web-mode');
-      let state = 'idle';
-      let direction = 'right';
-      let frameIndex = 0;
-      let animTimer = null;
-      let dragging = false;
-      let menuPaused = false;
-      let greetTimer = null;
-
-      const hitCanvas = document.createElement('canvas');
-      const hitContext = hitCanvas.getContext('2d', { willReadFrequently: true });
-
-      function ensureHitBitmap() {
-        if (!pet.complete || !pet.naturalWidth || !pet.naturalHeight) {
-          return false;
-        }
-
-        if (
-          hitCanvas.width !== pet.naturalWidth ||
-          hitCanvas.height !== pet.naturalHeight
-        ) {
-          hitCanvas.width = pet.naturalWidth;
-          hitCanvas.height = pet.naturalHeight;
-        }
-
-        hitContext.clearRect(0, 0, hitCanvas.width, hitCanvas.height);
-        hitContext.drawImage(pet, 0, 0);
-        return true;
-      }
-
-      function isBodyAt(clientX, clientY) {
-        const rect = pet.getBoundingClientRect();
-
-        if (
-          clientX < rect.left ||
-          clientX >= rect.right ||
-          clientY < rect.top ||
-          clientY >= rect.bottom
-        ) {
-          return false;
-        }
-
-        if (!ensureHitBitmap()) {
-          return false;
-        }
-
-        const pixelX = Math.floor(
-          ((clientX - rect.left) / rect.width) * hitCanvas.width
-        );
-        const pixelY = Math.floor(
-          ((clientY - rect.top) / rect.height) * hitCanvas.height
-        );
-
-        if (
-          pixelX < 0 ||
-          pixelX >= hitCanvas.width ||
-          pixelY < 0 ||
-          pixelY >= hitCanvas.height
-        ) {
-          return false;
-        }
-
-        try {
-          const sourceX =
-            direction === 'left' ? hitCanvas.width - 1 - pixelX : pixelX;
-          const alpha = hitContext.getImageData(sourceX, pixelY, 1, 1).data[3];
-          return alpha > 20;
-        } catch (error) {
-          return false;
-        }
-      }
-
-      function updateMouseMode(clientX, clientY) {
-        if (dragging) {
-          return;
-        }
-
-        const overBody = isBodyAt(clientX, clientY);
-        if (window.petAPI) window.petAPI.setIgnoreMouseEvents(!overBody);
-      }
-
-      function showNextFrame() {
-        const list = frames[state] || frames.walk;
-        pet.src = list[frameIndex % list.length];
-        frameIndex += 1;
-      }
-
-      function startAnimation() {
-        if (animTimer) {
-          clearInterval(animTimer);
-          animTimer = null;
-        }
-
-        if (menuPaused) {
-          const list = frames[state] || frames.walk;
-          pet.src = list[0];
-          return;
-        }
-
-        showNextFrame();
-        const interval = state === 'idle' ? 360 : 150;
-        animTimer = setInterval(showNextFrame, interval);
-      }
-
-      function setState(nextState, nextDirection) {
-        state = nextState;
-        direction = nextDirection;
-        frameIndex = 0;
-        pet.classList.toggle('face-left', direction === 'left');
-        startAnimation();
-      }
-
-      function setMenuPaused(paused) {
-        menuPaused = paused;
-        if (menuPaused) {
-          if (animTimer) {
-            clearInterval(animTimer);
-            animTimer = null;
-          }
-        } else {
-          startAnimation();
-        }
-      }
-
-      function showGreeting() {
-        bubble.style.display = 'block';
-
-        if (greetTimer) {
-          clearTimeout(greetTimer);
-        }
-
-        greetTimer = setTimeout(() => {
-          bubble.style.display = 'none';
-        }, 2000);
-      }
-
-      document.addEventListener('mousemove', (event) => {
-        updateMouseMode(event.clientX, event.clientY);
-      });
-
-      document.addEventListener('mouseleave', () => {
-        if (!dragging) {
-          if (window.petAPI) window.petAPI.setIgnoreMouseEvents(true);
-        }
-      });
-
-      pet.addEventListener('mousedown', (event) => {
-        if (event.button !== 0) {
-          return;
-        }
-
-        if (!isBodyAt(event.clientX, event.clientY)) {
-          return;
-        }
-
-        event.preventDefault();
-        dragging = true;
-        if (!window.petAPI) {
-          showGreeting();
-          return;
-        }
-        window.petAPI.startDrag({
-          offsetX: event.clientX,
-          offsetY: event.clientY
-        });
-      });
-
-      window.addEventListener('mouseup', () => {
-        if (!dragging) {
-          return;
-        }
-
-        dragging = false;
-        if (window.petAPI) window.petAPI.endDrag();
-      });
-
-      if (window.petAPI) {
-        window.petAPI.onState((data) => {
-          if (data.state === 'idle') {
-            setState('idle', 'right');
-          } else {
-            setState(data.state, data.direction);
-          }
-        });
-
-        window.petAPI.onAction((data) => {
-          if (data.action === 'greet') {
-            showGreeting();
-          }
-        });
-
-        window.petAPI.onPaused((data) => {
-          setMenuPaused(data.paused);
-        });
-      }
-
-      startAnimation();
-    </script>
+    <main>
+      <h1>JUJU 桌宠演示</h1>
+      <video controls autoplay muted playsinline>
+        <source src="./宠物视频.mp4" type="video/mp4" />
+        你的浏览器不支持播放视频。
+      </video>
+      <p><a href="https://github.com/zuolan17/zhuochong">查看源码和使用说明</a></p>
+    </main>
   </body>
 </html>

@@ -2,9 +2,9 @@
 
 一个可以在 Windows 桌面运行的像素桌宠。
 
-## 在线预览
+## 效果演示
 
-开启 GitHub Pages 后，可直接在浏览器查看桌宠动画。点击桌宠还会和你打招呼。
+[打开桌宠演示视频](https://zuolan17.github.io/zhuochong/)
 
 ## 本地运行
 
